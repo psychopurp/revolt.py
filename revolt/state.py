@@ -22,8 +22,20 @@ if TYPE_CHECKING:
 
 __all__ = ("State",)
 
+
 class State:
-    __slots__ = ("http", "api_info", "max_messages", "users", "channels", "servers", "messages", "global_emojis", "user_id", "me")
+    __slots__ = (
+        "http",
+        "api_info",
+        "max_messages",
+        "users",
+        "channels",
+        "servers",
+        "messages",
+        "global_emojis",
+        "user_id",
+        "me",
+    )
 
     def __init__(self, http: HttpClient, api_info: ApiInfo, max_messages: int):
         self.http: HttpClient = http
@@ -61,8 +73,6 @@ class State:
             raise LookupError from None
 
     def add_user(self, payload: UserPayload) -> User:
-
-
         user = User(payload, self)
 
         if payload.get("relationship") == "User":
@@ -121,7 +131,8 @@ class State:
             self.add_user(user)
 
         for member in data["members"]:
-            self.add_member(server_id, member)
+            if member["_id"]["user"] in self.users:
+                self.add_member(server_id, member)
 
     async def fetch_all_server_members(self) -> None:
         for server_id in self.servers:
