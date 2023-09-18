@@ -131,8 +131,7 @@ class State:
             self.add_user(user)
 
         for member in data["members"]:
-            if member["_id"]["user"] in self.users:
-                self.add_member(server_id, member)
+            self.add_member(server_id, member)
 
     async def fetch_all_server_members(self) -> None:
         for server_id in self.servers:
