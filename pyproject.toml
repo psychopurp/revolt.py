@@ -1,6 +1,6 @@
 [project]
 name = "revolt-baidu.py"
-version = "0.0.8"
+version = "0.0.9"
 description = "Python wrapper for the revolt.chat API"
 requires-python = ">=3.9"
 license = "MIT"

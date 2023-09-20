@@ -195,7 +195,14 @@ class WebsocketHandler:
         if server := self.state.get_channel(payload["channel_id"]).server_id:
             await self._wait_for_server_ready(server)
 
-        message = self.state.get_message(payload["message_id"])
+        try:
+            message = self.state.get_message(payload["message_id"])
+        except LookupError:
+            message_payload = await self.state.http.fetch_message(
+                payload["channel_id"], payload["message_id"]
+            )
+            message = self.state.add_message(message_payload)
+
         self.dispatch("interaction", payload, message)
 
     async def handle_messagepatch(self, payload: MessagePatchEventPayload) -> None:
