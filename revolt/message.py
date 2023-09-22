@@ -104,6 +104,9 @@ class Message(Ulid):
         self.session_id: str | None = data.get("session_id")
 
         channel = state.get_channel(data["channel"])
+        channel_raw = data["channel"]
+        self.content = self.content.replace(f"<#{channel_raw}>", "").strip()
+
         assert isinstance(
             channel, (TextChannel, GroupDMChannel, DMChannel, SavedMessageChannel)
         )
@@ -115,6 +118,9 @@ class Message(Ulid):
 
         self.raw_mentions: list[str] = data.get("mentions", [])
         self.mentions: list[Member | User] = []
+
+        for mention in self.raw_mentions:
+            self.content = self.content.replace(f"<@{mention}>", "").strip()
 
         if self.system_content:
             author_id: str = self.system_content.get("id", data["author"])
