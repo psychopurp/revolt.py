@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 from weakref import WeakValueDictionary
@@ -20,6 +21,8 @@ if TYPE_CHECKING:
     from .types import User as UserPayload
     from .types import UserProfile as UserProfileData
     from .server import Server
+
+logger: logging.Logger = logging.getLogger("revolt")
 
 __all__ = ("User", "Status", "Relation", "UserProfile")
 
@@ -130,9 +133,14 @@ class User(Messageable, Ulid):
         relations: list[Relation] = []
 
         for relation in data.get("relations", []):
-            user = state.get_user(relation["_id"])
-            if user:
-                relations.append(Relation(RelationshipType(relation["status"]), user))
+            try:
+                user = state.get_user(relation["_id"])
+                if user:
+                    relations.append(
+                        Relation(RelationshipType(relation["status"]), user)
+                    )
+            except LookupError:
+                logger.warn(f"user({relation['_id']}) not found")
 
         self.relations: list[Relation] = relations
 
